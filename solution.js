@@ -1,12 +1,43 @@
 function solvePuzzle(pieces) {
   let firstPiece = pieces[0];
+  let newPieces = [];
+  
   while (firstPiece.edges.left || firstPiece.edges.top)
     firstPiece = rotatePiece(firstPiece);
-  let newPieces = tryPiece(
-    firstPiece,
-    pieces.filter((item) => item.id != firstPiece.id)
-  );
+  
+  newPieces.push(firstPiece);
+  pieces = pieces.filter(item => item.id != firstPiece.id);
+
+  while(newPieces.length < 10) {
+    console.log(`Processing element ${newPieces.length}`);
+    let result = pieces.find(element => {
+      let currentPiece = comparePieces(newPieces[newPieces.length - 1], element);
+      if (currentPiece)
+        newPieces.push(currentPiece);
+      return currentPiece;
+    });
+    if (result) {
+        pieces = pieces.filter(item => item.id != newPieces[newPieces.length - 1].id);
+        console.log(`success on ${newPieces[newPieces.length - 1].id},`);
+      }
+  }
+  
   return [pieces[0].id];
+}
+
+function findFirstinRow(topPiece, bottomPiece) {
+  for (i = 0; i < 4; i++) {
+    if (topPiece.edges.bottom && bottomPiece.edges.top) {
+      if (topPiece.edges.bottom.edgeTypeId == bottomPiece.edges.top.edgeTypeId &&
+        topPiece.edges.bottom.type != bottomPiece.edges.top.type
+      ) {
+        console.log(`Success!`);
+        return bottomPiece;
+      }
+    }
+    bottomPiece = rotatePiece(bottomPiece);
+  }
+  return false;
 }
 
 function comparePieces(leftPiece, rightPiece) {
@@ -70,32 +101,32 @@ function rotatePiece(piece) {
   return newPiece;
 }
 
-function tryPiece(piece, restOfPieces) {
-  console.log(
-    `...trying piece ${piece.id} and array of ${restOfPieces.length} elements`
-  );
-  let successFlag = false;
-  restOfPieces.forEach((element, idx) => {
-    let currentPiece = comparePieces(piece, element);
+// function tryPiece(piece, restOfPieces) {
+//   console.log(
+//     `...trying piece ${piece.id} and array of ${restOfPieces.length} elements`
+//   );
+//   let successFlag = false;
+//   restOfPieces.forEach((element, idx) => {
+//     let currentPiece = comparePieces(piece, element);
 
-    if (currentPiece) {
-      successFlag = true;
-      console.log(
-        `compare piece ${piece.id} and ${element.id} sucessful on ${idx} step, go deeper`
-      );
-      return tryPiece(
-        currentPiece,
-        restOfPieces.filter((item) => item.id != element.id)
-      );
-    }
-  });
-  if (successFlag) {
-    return true;
-  } else {
-    console.log(`End of array reached and unsuccesfull`);
-    return false;
-  }
-}
+//     if (currentPiece) {
+//       successFlag = true;
+//       console.log(
+//         `compare piece ${piece.id} and ${element.id} sucessful on ${idx} step, go deeper`
+//       );
+//       return tryPiece(
+//         currentPiece,
+//         restOfPieces.filter((item) => item.id != element.id)
+//       );
+//     }
+//   });
+//   if (successFlag) {
+//     return true;
+//   } else {
+//     console.log(`End of array reached and unsuccesfull`);
+//     return false;
+//   }
+// }
 
 // Не удаляйте эту строку
 window.solvePuzzle = solvePuzzle;
